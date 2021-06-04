@@ -1,5 +1,5 @@
 #+TITLE:Emacs-Config
-#+PROPERTY: header-args :tangle init.el
+#+PROPERTY: header-args :tangle config.el
 
 * Table of Contents  :toc:
 - [[#user-information][User Information]]
