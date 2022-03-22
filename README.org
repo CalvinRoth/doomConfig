@@ -1,5 +1,5 @@
 #+TITLE:Emacs-Config
-#+PROPERTY: header-args :tangle config.el
+#+PROPERTY: header-args  :tangle config.el
 
 * Table of Contents  :toc:
 - [[#user-information][User Information]]
@@ -8,11 +8,25 @@
   - [[#line-numbers][Line Numbers]]
   - [[#start-up-setting][Start up setting]]
   - [[#font-settings][Font Settings]]
+  - [[#battery-info][Battery info]]
+  - [[#new-buffer-start-mode][New Buffer Start mode]]
   - [[#emoji-settings][Emoji Settings]]
+- [[#python][Python]]
+  - [[#version][Version]]
+- [[#web-develment][Web Develment]]
+  - [[#emmet][Emmet]]
+- [[#dashboard][Dashboard]]
 - [[#org-mode][Org Mode]]
   - [[#general-org-mode][General org mode]]
+  - [[#org-keybindings][Org-Keybindings]]
   - [[#directories][Directories]]
   - [[#tood-lists-and-bullets][TOOD lists and bullets]]
+  - [[#org-roam][Org Roam]]
+  - [[#archiving][Archiving]]
+  - [[#phone-sync][Phone sync]]
+  - [[#publishing][Publishing]]
+  - [[#language--support][Language  Support]]
+- [[#latex][Latex]]
 - [[#additional-documentation][Additional documentation]]
 
 * User Information
@@ -44,7 +58,7 @@ available. You can either set `doom-theme' or manually load a theme with the
 `load-theme' function. To preview other themes press SPACE+h+t.
 ** Theme
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-dracula)
 #+end_src
 
 #+RESULTS:
@@ -77,6 +91,18 @@ Next make the font size bigger. Also change font here
 
 #+RESULTS:
 
+** Battery info
+If on a laptop show battery information
+#+begin_src elisp
+(unless (string-match-p "^Power N/A" (battery))
+  (display-battery-mode 1))
+#+end_src
+
+** New Buffer Start mode
+Start new buffers in org mode
+#+begin_src elisp
+(setq-default major-mode 'org-mode)
+#+end_src
 ** Emoji Settings
 Finally, we set the style of emoji we want to use. Here we use the twitter style
 #+begin_src emacs-lisp
@@ -85,6 +111,27 @@ Finally, we set the style of emoji we want to use. Here we use the twitter style
 
 #+RESULTS:
 : twemoji-v2
+
+
+* Python
+** Version
+#+begin_src emacs-lisp
+(setq org-babel-python-command "/Users/calvinroth/miniconda3/bin/python")
+#+end_src
+
+* Web Develment
+** Emmet
+Emmet is a nice snippet like library for html stuff. For example, html:5 C-j \to a full html template with head and body.
+#+begin_src elisp
+(add-load-path! "~/emacs.d/emmet-mode")
+(require 'emmet-mode)
+(add-hook 'html-mode-hook 'emmet-mode t)
+#+end_src
+
+
+* Dashboard
+#+begin_src emacs-lisp
+#+end_src
 
 * Org Mode
 
@@ -96,7 +143,7 @@ First, we turn on toggle pretty entities this turns simple math into the appropr
 to becomes \to . In general, use latex rules, in particular math commands start with a slash \ normally. Super/subscripts work now too.
 #+begin_src emacs-lisp
 (after! org
-  (setq org-pretty-entities t)
+  (setq org-pretty-entities nil)
 )
 #+end_src
 
@@ -106,25 +153,79 @@ to becomes \to . In general, use latex rules, in particular math commands start 
 We will also hide emphasis markers. In org mode / + text + / with no spaces for the slashes yields italtic text: /text/ and likewise for *Bold Text* using the * symbol. This command hides the slashes and stars.
 #+begin_src emacs-lisp
 (after! org
-  (setq org-hide-emphasis-markers t)
+  (setq org-hide-emphasis-markers nil)
 )
 #+end_src
 
 #+RESULTS:
 : t
 
+** Org-Keybindings
+Hotkey to insert a new heading.
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix-map ("i" . "insert")
+      :desc "New Heading" "h" #'org-insert-heading
+      )
+)
+
+#+end_src
+
+Next, we have a function to change the title of a selected item in the _posts directory of my personal site to have the proper date format.
+#+begin_src emacs-lisp
+(defun add-date-post ()
+   "Add  YEAR-MONTH-DAY- to current file"
+   (interactive)
+   (setq full-name (epa-read-file-name "~/projects/CalvinRoth.github.io/_posts/"))
+   (setq dpart (file-name-directory full-name))
+   (setq localpart (file-name-nondirectory full-name))
+   (setq newnamelocal (concat (format-time-string "%Y-%m-%d-") localpart))
+   (setq newnametotal (concat dpart newnamelocal))
+   (rename-file full-name newnametotal)
+)
+
+(map! :leader
+      (:prefix-map ("d" . "dates")
+        :desc "DatePosts" "w" #'add-date-post
+      )
+)
+
+(map! :leader
+      (:prefix-map ("(" . "Comments")
+        :desc "Toggle Comment Region" "t" #'comment-or-uncomment-region
+        :desc "Comment Region" "c" #'comment-region
+        :desc "Uncomment Region" "u" #'uncomment-region
+      )
+)
+#+end_src
+
+
 ** Directories
 #+begin_src emacs-lisp
 (after! org
   (setq org-directory "~/org/")
-  (setq org-agenda-files "/org/weekly.org")
+  (setq org-agenda-files "~/org/weekly.org")
 )
 #+end_src
 
 #+RESULTS:
-: /org/weekly.org
+: ~/org/weekly.org
 
 ** TOOD lists and bullets
+*** Org faces
+#+begin_src emacs-lisp
+(use-package! org
+  :config
+  (setq org-todo-keywords
+    '((sequence "TODO🌊(t)" "ARCH📜(a) " "LOOP(l) " "PROG👷(p)" "WAIT(w)" "HOLD(h)" "IDEA(i)" "GOAL🥅(g)" "|" "DONE✅(d)" "KILL(k)")
+     (sequence "[ ](T)" "[-](S)" "[?](W)" "|" "[X](D)")
+     (sequence "|" "OKA👌🏻Y(o)" "YES(y)" "NO(n)"))
+  )
+)
+#+end_src
+
+
+*** Recursive TODOS
 This makes it so when all the children of a TOOD item are DONE then the parent is automatically marked as done
 #+begin_src emacs-lisp
 (defun org-summary-todo (n-done n-not-done)
@@ -137,7 +238,7 @@ This makes it so when all the children of a TOOD item are DONE then the parent i
 
 #+RESULTS:
 | org-summary-todo |
-
+*** Prettifying todo/bullets
 This package is for prettier bullets
 #+begin_src emacs-lisp
 (after! org
@@ -156,11 +257,88 @@ Just as the org bullet packages redefine the bullets for headings, I define the 
 (after! org)
 (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "🔹"))))))
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "-"))))))
 #+end_src
 
 #+RESULTS:
 
+** TODO Org Roam
+#+begin_src emacs-lisp
+(after! org
+   (setq org-roam-directory "~/paperNotes")
+)
+#+end_src
+
+** Archiving
+This sets up where to archive subtrees to and marks them all as done
+#+begin_src emacs-lisp
+(setq org-archive-mark-done t)
+(setq org-archive-location "~/org/archive.org:: ")
+#+end_src
+
+** Phone sync
+TODO
+
+** Publishing
+Publishing org files to website directory.
+
+This function asks for the output file name
+
+#+begin_src emacs-lisp
+  (require 'ox-publish)
+
+  (setq org-publish-project-alist
+    `(
+          ("org-notes"
+         :base-directory "~/org/webDrafts"
+         :base-extension "org"
+         :publishing-directory "~/projects/CalvinRoth.github.io/_posts/"
+         :recursive t
+         :publishing-function org-html-publish-to-html
+         :headline-levels 4             ; Just the default for this project.
+         :auto-preamble t
+         )
+        ("org-static"
+         :base-directory "~/org/"
+         :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf"
+         :publishing-directory "~/projects/CalvinRoth.github.io/_posts/"
+         :recursive t
+         :publishing-function org-publish-attachment
+         )
+        ("org" :components ("org-notes" "org-static"))
+    )
+)
+#+end_src
+
+
+
+#+RESULTS:
+
+
+** Language  Support
+#+begin_src emacs-lisp
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)
+    (ipython . t)
+    )
+)
+
+(add-hook 'org-babel-after-execute 'org-display-inline-images 'append)
+
+#+end_src
+
+* Latex
+This will auto fill in a preabmle to new latex documents.
+#+begin_src emacs-lisp
+;; (use-package! latex-math-preview)
+(auto-insert-mode)
+ ;; *NOTE* Trailing slash important
+(setq auto-insert-directory "~/latex/templates/")
+(setq auto-insert-query nil)
+(define-auto-insert "\\.tex$" "gen-template.tex")
+
+#+end_src
 * Additional documentation
 Here are some additional functions/macros that could help you configure Doom:
 
