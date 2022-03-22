@@ -334,7 +334,7 @@ This will auto fill in a preabmle to new latex documents.
 ;; (use-package! latex-math-preview)
 (auto-insert-mode)
  ;; *NOTE* Trailing slash important
-(setq auto-insert-directory "~/latex/templates/")
+(setq auto-insert-directory "~/.doom.d/latex/templates/")
 (setq auto-insert-query nil)
 (define-auto-insert "\\.tex$" "gen-template.tex")
 
