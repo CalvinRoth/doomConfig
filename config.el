@@ -129,12 +129,16 @@
 ;; (use-package! latex-math-preview)
 (auto-insert-mode)
  ;; *NOTE* Trailing slash important
-(setq auto-insert-directory "~/latex/templates/")
+(setq auto-insert-directory "~/.doom.d/templates/")
 (setq auto-insert-query nil)
 (define-auto-insert "\\.tex$" "gen-template.tex")
 
-(unless (string-match-p "^Power N/A" (battery))
-  (display-battery-mode 1))
+(require 'ox-reveal)
+(setq org-reveal-root "~/projects/CalvinRoth.github.io/assets/slides")
+(setq Org-Reveal-title-slide nil)
+
+;;(unless (string-match-p "^Power N/A" (battery))
+;;  (display-battery-mode 1))
 
 (setq-default major-mode 'org-mode)
 

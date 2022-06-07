@@ -27,6 +27,7 @@
   - [[#publishing][Publishing]]
   - [[#language--support][Language  Support]]
 - [[#latex][Latex]]
+  - [[#slides][Slides]]
 - [[#additional-documentation][Additional documentation]]
 
 * User Information
@@ -94,8 +95,8 @@ Next make the font size bigger. Also change font here
 ** Battery info
 If on a laptop show battery information
 #+begin_src elisp
-(unless (string-match-p "^Power N/A" (battery))
-  (display-battery-mode 1))
+;;(unless (string-match-p "^Power N/A" (battery))
+;;  (display-battery-mode 1))
 #+end_src
 
 ** New Buffer Start mode
@@ -334,11 +335,25 @@ This will auto fill in a preabmle to new latex documents.
 ;; (use-package! latex-math-preview)
 (auto-insert-mode)
  ;; *NOTE* Trailing slash important
-(setq auto-insert-directory "~/.doom.d/latex/templates/")
+(setq auto-insert-directory "~/.doom.d/templates/")
 (setq auto-insert-query nil)
 (define-auto-insert "\\.tex$" "gen-template.tex")
 
 #+end_src
+
+#+RESULTS:
+: ["gen-template.tex" "gen-template.tex"]
+
+** Slides
+Here we add code to enable ox-reveal so that we can export org mode slides to reaveal js
+#+begin_src emacs-lisp
+(require 'ox-reveal)
+(setq org-reveal-root "~/projects/CalvinRoth.github.io/assets/slides")
+(setq Org-Reveal-title-slide nil)
+#+end_src
+
+#+RESULTS:
+
 * Additional documentation
 Here are some additional functions/macros that could help you configure Doom:
 
